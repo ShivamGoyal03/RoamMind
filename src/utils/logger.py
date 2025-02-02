@@ -1,5 +1,6 @@
 import logging
 from typing import Optional
+from pydantic import ValidationError
 
 def setup_logger(name: str, level: Optional[str] = "INFO") -> logging.Logger:
     """Configure and return a logger instance."""

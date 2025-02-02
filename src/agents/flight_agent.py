@@ -4,9 +4,8 @@ from ..infrastructure.flight_service import FlightService
 from ..infrastructure.azure_openai import AzureOpenAIService
 from ..models.flight import FlightSearchParams, Flight
 from ..exceptions import FlightNotFoundError
-from ..utils.logger import setup_logger
+from ..utils.logger import setup_logger, ValidationError
 from ..utils.date_helper import parse_date_string
-from pydantic import ValidationError
 
 logger = setup_logger(__name__)
 

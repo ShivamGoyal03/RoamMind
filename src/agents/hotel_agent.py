@@ -5,8 +5,7 @@ from ..infrastructure.azure_openai import AzureOpenAIService
 from ..models.hotel import HotelSearchParams, Hotel
 from ..exceptions import HotelNotFoundError
 from ..utils.date_helper import parse_date_string
-from ..utils.logger import setup_logger
-from pydantic import ValidationError
+from ..utils.logger import setup_logger, ValidationError
 
 logger = setup_logger(__name__)
 
