@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 from pydantic import BaseModel
 from ..core.models import ConversationContext
 from ..utils.logger import setup_logger
@@ -9,18 +9,18 @@ logger = setup_logger(__name__)
 class AgentRequest(BaseModel):
     input: str
     context: ConversationContext
-    parameters: Dict[str, any] = {}
+    parameters: Dict[str, Any] = {}
     
-    def get_parameter(self, key: str, default: any = None) -> any:
+    def get_parameter(self, key: str, default: Any = None) -> Any:
         """Get a parameter value with a default if not found."""
         return self.parameters.get(key, default)
 
 class AgentResponse(BaseModel):
     response: str
     success: bool
-    updated_context: Dict[str, any] = {}
+    updated_context: Dict[str, Any] = {}
     suggestions: List[str] = []
-    data: Optional[Dict[str, any]] = None
+    data: Optional[Dict[str, Any]] = None
 
 class BaseAgent(ABC):
     """Base class for all agents in the system.

@@ -14,12 +14,3 @@ def validate_phone(phone: str) -> bool:
 def sanitize_input(text: str) -> str:
     """Sanitize user input by removing potentially harmful characters."""
     return re.sub(r'[<>&;]', '', text.strip())
-
-def validate_booking_reference(reference: str) -> Optional[str]:
-    """Validate and normalize booking reference."""
-    if not reference:
-        return None
-    reference = reference.upper().strip()
-    if not re.match(r'^[A-Z0-9]{6,12}$', reference):
-        return None
-    return reference 

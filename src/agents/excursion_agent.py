@@ -1,10 +1,9 @@
 from typing import List
-from datetime import datetime
 from .base import BaseAgent, AgentRequest, AgentResponse
 from ..infrastructure.excursion_service import ExcursionService
 from ..infrastructure.azure_openai import AzureOpenAIService
 from ..models.excursion import ExcursionSearchParams, Excursion
-from ..exceptions import BookingError, ExcursionNotFoundError
+from ..exceptions import ExcursionNotFoundError
 from ..utils.logger import setup_logger
 
 logger = setup_logger(__name__)
@@ -14,9 +13,7 @@ class ExcursionAgent(BaseAgent):
     
     SUPPORTED_INTENTS = {
         "search_excursions",
-        "book_excursion",
         "excursion_info",
-        "cancel_excursion",
         "list_categories"
     }
     
@@ -32,7 +29,7 @@ class ExcursionAgent(BaseAgent):
         return "Excursion Agent"
         
     async def get_description(self) -> str:
-        return "I can help you find and book excursions, tours, and activities at your destination."
+        return "I can provide information about excursions, tours, and activities at your destination."
         
     async def process(self, request: AgentRequest) -> AgentResponse:
         try:
@@ -41,12 +38,8 @@ class ExcursionAgent(BaseAgent):
             
             if intent == "search_excursions":
                 return await self._handle_excursion_search(request)
-            elif intent == "book_excursion":
-                return await self._handle_excursion_booking(request)
             elif intent == "excursion_info":
                 return await self._handle_excursion_info(request)
-            elif intent == "cancel_excursion":
-                return await self._handle_excursion_cancellation(request)
             elif intent == "list_categories":
                 return await self._handle_list_categories(request)
         except Exception as e:
@@ -99,47 +92,8 @@ class ExcursionAgent(BaseAgent):
             data={"excursions": [e.model_dump() for e in excursions]},
             suggestions=[
                 "Show more details",
-                "Book an excursion",
-                "Filter by category"
-            ]
-        )
-            
-    async def _handle_excursion_booking(self, request: AgentRequest) -> AgentResponse:
-        excursion_id = request.get_parameter("excursion_id")
-        date_str = request.get_parameter("date")
-        participants = request.get_parameter("participants", 1)
-        customer_details = request.get_parameter("customer_details", {})
-        
-        if not all([excursion_id, date_str, customer_details]):
-            return AgentResponse(
-                success=False,
-                response="Please provide excursion details, date, and customer information to make a booking.",
-                suggestions=["Search excursions first", "View available dates"]
-            )
-        
-        try:
-            date = datetime.fromisoformat(date_str)
-            booking = await self.excursion_service.create_booking(
-                excursion_id=excursion_id,
-                date=date,
-                participants=participants,
-                customer_details=customer_details
-            )
-        except Exception as e:
-            return AgentResponse(
-                success=False,
-                response=f"Booking failed: {str(e)}",
-                suggestions=["Try again", "Choose different date"]
-            )
-            
-        return AgentResponse(
-            success=True,
-            response=f"Great! I've booked your excursion. Your booking reference is {booking.reference}.",
-            data={"booking": booking.to_dict()},
-            suggestions=[
-                "View booking details",
-                "Search more activities",
-                "Cancel booking"
+                "Filter by category",
+                "View similar activities"
             ]
         )
             
@@ -165,36 +119,9 @@ class ExcursionAgent(BaseAgent):
             success=True,
             response=self._format_excursion_details(excursion),
             data={"excursion": excursion.to_dict()},
-            suggestions=["Book now", "Check availability", "View similar activities"]
+            suggestions=["View similar activities"]
         )
-            
-    async def _handle_excursion_cancellation(self, request: AgentRequest) -> AgentResponse:
-        booking_ref = request.get_parameter("booking_reference")
-        customer_email = request.get_parameter("customer_email")
-        
-        if not all([booking_ref, customer_email]):
-            return AgentResponse(
-                success=False,
-                response="Please provide your booking reference and email to cancel.",
-                suggestions=["View my bookings", "Search excursions"]
-            )
-            
-        try:
-            result = await self.excursion_service.cancel_booking(booking_ref, customer_email)
-        except BookingError as e:
-            return AgentResponse(
-                success=False,
-                response=f"Failed to cancel booking: {str(e)}",
-                suggestions=["Try again later", "Contact support"]
-            )
-            
-        return AgentResponse(
-            success=True,
-            response=f"Your booking has been cancelled. {result['message']}",
-            data=result,
-            suggestions=["Search new activities", "View other excursions"]
-        )
-            
+                
     async def _handle_list_categories(self, request: AgentRequest) -> AgentResponse:
         location = request.get_parameter("location", "")
         
@@ -239,6 +166,5 @@ class ExcursionAgent(BaseAgent):
             f"Description:\n{excursion.description}\n\n"
             f"Includes:\n" + "\n".join(f"• {item}" for item in excursion.inclusions) + "\n\n"
             f"Meeting Point: {excursion.meeting_point}\n"
-            f"Languages: {', '.join(excursion.languages)}\n"
-            f"Maximum Group Size: {excursion.max_participants} people"
+            f"Languages: {', '.join(excursion.languages)}"
         )
