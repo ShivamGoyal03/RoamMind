@@ -93,10 +93,10 @@ class ExcursionAgent(BaseAgent):
             success=True,
             response=self._format_excursion_results(excursions),
             updated_context={
-                "last_searched_excursions": [e.to_dict() for e in excursions],
-                "search_params": search_params.dict()
+                "last_searched_excursions": [e.model_dump() for e in excursions],
+                "search_params": search_params.model_dump()
             },
-            data={"excursions": [e.to_dict() for e in excursions]},
+            data={"excursions": [e.model_dump() for e in excursions]},
             suggestions=[
                 "Show more details",
                 "Book an excursion",
