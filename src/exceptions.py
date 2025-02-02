@@ -29,3 +29,25 @@ class RestaurantNotFoundError(Exception):
         message = f"Restaurant not found: {restaurant_id}"
         logger.error(message)
         super().__init__(message)
+
+class APIError(Exception):
+    """Custom exception for API errors."""
+    def __init__(self, message: str):
+        super().__init__(message)
+        self.message = message
+
+class APIConnectionError(Exception):
+    """Exception raised for API connection errors."""
+    def __init__(self, message: str):
+        super().__init__(message)
+        self.message = message
+
+class DatabaseError(Exception):
+    """Exception raised for database-related errors."""
+    def __init__(self, operation: str, message: str):
+        super().__init__(message)
+        self.operation = operation
+        self.message = message
+
+    def __str__(self):
+        return f"DatabaseError during {self.operation}: {self.message}"

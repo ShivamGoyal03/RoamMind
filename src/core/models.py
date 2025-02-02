@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 from pydantic import BaseModel, Field
 import uuid
 
@@ -25,8 +25,8 @@ class TravelPreferences(BaseModel):
     seat_preference: Optional[str] = None
     meal_preference: Optional[str] = None
     accessibility_needs: List[str] = []
-    hotel_preferences: Dict[str, any] = {}
-    dining_preferences: Dict[str, any] = {}
+    hotel_preferences: Dict[str, Any] = {}
+    dining_preferences: Dict[str, Any] = {}
     
     def to_dict(self) -> Dict:
         return {
@@ -42,12 +42,15 @@ class TravelPreferences(BaseModel):
 class ConversationContext(BaseModel):
     """Model for conversation context."""
     user_id: str
-    memory: Dict[str, any] = {}
+    memory: Dict[str, Any] = {}
     session_id: Optional[str] = None
-    preferences: Dict[str, any] = {}
+    preferences: Dict[str, Any] = {}
     last_intent: Optional[str] = None
-    last_entities: Dict[str, any] = {}
-    
+    last_entities: Dict[str, Any] = {}
+
+    class Config:
+        arbitrary_types_allowed = True  # Allow arbitrary types
+
     def to_dict(self) -> Dict:
         return {
             "user_id": self.user_id,

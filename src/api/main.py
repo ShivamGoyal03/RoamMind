@@ -9,7 +9,7 @@ from ..exceptions import RestaurantNotFoundError, FlightNotFoundError, Excursion
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title="Travel AI Assistant")
+app = FastAPI(title="RoamMind")
 
 app.add_middleware(
     CORSMiddleware,
