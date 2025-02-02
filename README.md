@@ -23,13 +23,12 @@ Travel AI Assistant is a sophisticated travel planning system that combines natu
 - Async API Operations
 - Azure OpenAI Integration
 - Cosmos DB Data Persistence
-- JWT Authentication
 - Swagger/ReDoc Documentation
 - Comprehensive Error Handling
 
 ## 🏗️ Project Structure
 ```bash
-travel_ai/
+RoamMind/
 ├── src/
 │ ├── api/ # FastAPI endpoints
 │ │ ├── main.py # Main API entry point
@@ -55,7 +54,6 @@ travel_ai/
 │ │ └── validation.py # Input validation
 │ └── web/ # Web interface
 │ └── app.py # Streamlit application
-├── tests/ # Test suites
 └── requirements.txt # Dependencies
 ```
 
@@ -64,8 +62,8 @@ travel_ai/
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/yourusername/travel-ai.git
-cd travel-ai
+git clone https://github.com/ShivamGoyal03/RoamMind.git
+cd RoamMind
 ```
 
 2. Create virtual environment:
