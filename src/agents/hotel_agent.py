@@ -93,7 +93,7 @@ class HotelAgent(BaseAgent):
             suggestions=[
                 "Show more details",
                 "Check availability",
-                "View other hotels" #Removed "Book a room"
+                "View other hotels" 
             ]
         )
 

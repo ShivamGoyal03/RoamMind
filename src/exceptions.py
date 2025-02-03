@@ -51,3 +51,12 @@ class DatabaseError(Exception):
 
     def __str__(self):
         return f"DatabaseError during {self.operation}: {self.message}"
+
+class CosmosClientError(Exception):
+    """Exception raised for Cosmos DB client errors."""
+    def __init__(self, message: str):
+        super().__init__(message)
+        self.message = message
+    
+    def __str__(self):
+        return f"CosmosClientError: {self.message}"

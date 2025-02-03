@@ -6,10 +6,15 @@ from typing import List
 from ..utils.logger import *
 from ..exceptions import RestaurantNotFoundError, FlightNotFoundError, ExcursionNotFoundError, HotelNotFoundError
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logger = setup_logger(__name__)
 
-app = FastAPI(title="RoamMind")
+app = FastAPI(
+    title="RoamMind",
+    description="Travel planning assistant API",
+    version="1.0.0",
+    docs_url="/api/docs",
+    redoc_url="/api/redoc"
+)
 
 app.add_middleware(
     CORSMiddleware,
@@ -50,8 +55,14 @@ async def get_conversation(conversation_id: str):
         if conversation is None:
             raise HTTPException(status_code=404, detail="Conversation not found")
         return conversation
+    except ValidationError as e:
+        logger.error(f"Validation error: {e}")
+        raise HTTPException(status_code=422, detail="Invalid input. Please check your request and try again.")
+    except (RestaurantNotFoundError, FlightNotFoundError, ExcursionNotFoundError, HotelNotFoundError) as e:
+        logger.error(f"Resource not found: {e}")
+        raise HTTPException(status_code=404, detail="Resource not found")
     except Exception as e:
-        logger.error(f"Error retrieving conversation: {str(e)}")
+        logger.exception(f"Unexpected error: {e}")
         raise HTTPException(status_code=500, detail="Error retrieving conversation. Please try again later.")
 
 @app.get("/health")
