@@ -8,12 +8,6 @@ import asyncio
 
 logger = logging.getLogger(__name__)
 
-class APIError(Exception):
-    pass
-
-class APIConnectionError(Exception):
-    pass
-
 class FlightService:
     """Service for handling flight-related operations through external APIs and LLM."""
 
@@ -96,7 +90,7 @@ class FlightService:
 
     async def _call_api(self, method: str, endpoint: str, **kwargs) -> Dict:
         url = f"{self.api_base_url}{endpoint}"
-        logger.info(f"Making API call: {method} {url} with params: {kwargs.get('params', {})} ")
+        logger.info(f"Making API call: {method} {url} with params: {kwargs.get('params', {})}")
         max_retries = 3
         for attempt in range(1, max_retries + 1):
             try:

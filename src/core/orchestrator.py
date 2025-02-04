@@ -31,59 +31,30 @@ class Orchestrator:
         self.repository = repository
         self.logger = logging.getLogger(__name__)
         
-    async def process_user_input(self, conversation_id: str, user_input: str) -> AgentResponse:
-        """Process user input and coordinate between agents."""
-        try:
-            # Get or create conversation
-            conversation = await self.repository.get_conversation(conversation_id)
-            if not conversation:
-                conversation = Conversation(id=conversation_id)
-                
-            # Analyze intent and extract trip requirements using LLM
-            analysis = await self.openai_service.analyze_user_input(
-                user_input,
-                conversation.context.dict()
-            )
-            
-            # Handle multi-agent coordination for trip planning
-            if analysis["requires_coordination"]:
-                return await self._coordinate_agents(
-                    user_input,
-                    analysis,
-                    conversation.context
-                )
-                
-            # Handle single agent requests
-            primary_agent = await self._get_primary_agent(analysis["primary_intent"])
-            if not primary_agent:
-                return AgentResponse(
-                    success=False,
-                    response="I'm not sure how to help with that request.",
-                    suggestions=["Plan a trip", "Search flights", "Find hotels"]
-                )
-                
-            # Process with primary agent
-            response = await primary_agent.process(
-                AgentRequest(
-                    input=user_input,
-                    context=conversation.context,
-                    parameters=analysis.get("parameters", {})
-                )
-            )
-            
-            # Update conversation context
-            conversation.context.update(response.updated_context)
-            await self.repository.save_conversation(conversation)
-            
-            return response
-            
-        except Exception as e:
-            self.logger.error(f"Error processing input: {str(e)}", exc_info=True)
+    async def process_user_input(self, conversation_id: str, message: str):
+        """
+        Process the user input by dispatching to the appropriate agent based on keywords in the message.
+        Returns an AgentResponse.
+        """
+        lowered = message.lower()
+        if "flight" in lowered:
+            agent = self.agents.get("flight")
+        elif "hotel" in lowered:
+            agent = self.agents.get("hotel")
+        elif "restaurant" in lowered:
+            agent = self.agents.get("restaurant")
+        elif "excursion" in lowered:
+            agent = self.agents.get("excursion")
+        else:
+            # If no intent is identified, return a default response.
             return AgentResponse(
-                success=False,
-                response="Sorry, I encountered an error processing your request.",
-                suggestions=["Try again", "Start over", "Contact support"]
+                success=True,
+                response="Sorry, I couldn't identify your request. Please mention flight, hotel, restaurant, or excursion.",
+                suggestions=[]
             )
+        
+        # Each agent is expected to have a process_message() method that returns an AgentResponse.
+        return await agent.process_message(message)
             
     async def _coordinate_agents(
         self,

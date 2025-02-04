@@ -41,20 +41,29 @@ def get_excursion_service(openai_service: AzureOpenAIService = Depends(get_opena
     settings = get_settings()
     return ExcursionService(api_key=settings.excursion_api_key, api_base_url=settings.excursion_api_base_url, openai_service=openai_service)
 
-def get_orchestrator(
-    openai_service: AzureOpenAIService = Depends(get_openai_service),
-    repository: CosmosRepository = Depends(get_cosmos_repository),
-    flight_service: FlightService = Depends(get_flight_service),
-    hotel_service: HotelService = Depends(get_hotel_service),
-    restaurant_service: RestaurantService = Depends(get_restaurant_service),
-    excursion_service: ExcursionService = Depends(get_excursion_service)
-) -> Orchestrator:
+def get_orchestrator():
+    settings = get_settings()
+    # Instantiate the Azure OpenAI Service using settings
+    openai_service = AzureOpenAIService(
+        api_key=settings.azure_openai_api_key,
+        endpoint=settings.azure_openai_endpoint,
+        api_version=settings.azure_openai_api_version
+    )
+    # Instantiate the repository using the Cosmos connection string
+    repository = CosmosRepository(settings.cosmos_connection_string)
+    # Instantiate external services with appropriate settings
+    flight_service = FlightService(settings.flight_api_key, settings.flight_api_base_url, openai_service)
+    hotel_service = HotelService(settings.hotel_api_key, settings.hotel_api_base_url, openai_service)
+    restaurant_service = RestaurantService(settings.restaurant_api_key, settings.restaurant_api_base_url, openai_service)
+    excursion_service = ExcursionService(settings.excursion_api_key, settings.excursion_api_base_url, openai_service)
+
+    # Instantiate agents using the respective services
     flight_agent = FlightAgent(flight_service, openai_service)
     hotel_agent = HotelAgent(hotel_service, openai_service)
     restaurant_agent = RestaurantAgent(restaurant_service, openai_service)
     excursion_agent = ExcursionAgent(excursion_service, openai_service)
-    
-    return Orchestrator(
+
+    orchestrator = Orchestrator(
         flight_agent=flight_agent,
         hotel_agent=hotel_agent,
         excursion_agent=excursion_agent,
@@ -62,3 +71,4 @@ def get_orchestrator(
         openai_service=openai_service,
         repository=repository
     )
+    return orchestrator
