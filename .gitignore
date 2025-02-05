@@ -1,3 +1,13 @@
 *__pycache__
 .env
 venv
+
+src/agents/excursion_agent.py
+src/agents/flight_agent.py
+src/agents/hotel_agent.py
+src/agents/restaurant_agent.py
+
+src/infrastructure/excursion_service.py
+src/infrastructure/flight_service.py
+src/infrastructure/hotel_service.py
+src/infrastructure/restaurant_service.py
