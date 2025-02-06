@@ -1,9 +1,8 @@
-from .dependencies import get_kernel, get_settings, get_repository, get_orchestrator, get_openai_service
+from .dependencies import get_logger, get_repository, get_orchestrator
+# from .main import app # main.py is not imported here
 
 __all__ = [
-    'get_kernel',
-    'get_settings',
-    'get_repository',
-    'get_orchestrator',
-    'get_openai_service',
+    get_logger,
+    get_repository,
+    get_orchestrator
 ]
