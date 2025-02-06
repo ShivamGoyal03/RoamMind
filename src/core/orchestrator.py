@@ -1,116 +1,79 @@
-from typing import List, Dict, Optional
 import logging
-from .models import Conversation, ConversationContext
-from ..agents.base import BaseAgent, AgentRequest, AgentResponse
-from ..agents.flight_agent import FlightAgent
-from ..agents.hotel_agent import HotelAgent
-from ..agents.excursion_agent import ExcursionAgent
-from ..agents.restaurant_agent import RestaurantAgent
-from ..infrastructure.azure_openai import AzureOpenAIService
+from typing import Dict, Optional, Any
+from semantic_kernel.kernel import Kernel
+from semantic_kernel.functions.kernel_arguments import KernelArguments
+from ..core.config import get_settings
 from ..infrastructure.cosmos_repository import CosmosRepository
+from ..models import Conversation
+
+from ..infrastructure import (
+    AzureOpenAIService,
+    CosmosRepository
+)
+
+from ..skills import (
+    ExcursionSkill,
+    RestaurantSkill,
+    HotelSkill,
+    FlightSkill
+)
 
 class Orchestrator:
-    """Orchestrator for coordinating between different agents and managing conversations."""
-    
-    def __init__(
-        self,
-        flight_agent: FlightAgent,
-        hotel_agent: HotelAgent,
-        excursion_agent: ExcursionAgent,
-        restaurant_agent: RestaurantAgent,
-        openai_service: AzureOpenAIService,
-        repository: CosmosRepository
-    ):
-        self.agents = {
-            "flight": flight_agent,
-            "hotel": hotel_agent,
-            "excursion": excursion_agent,
-            "restaurant": restaurant_agent
-        }
-        self.openai_service = openai_service
-        self.repository = repository
+    """Orchestrator for coordinating between different agents and managing conversations.
+       This orchestrator integrates the excursion, restaurant, hotel, and flight skill plugins.
+    """
+
+    def __init__(self, repository: CosmosRepository):
         self.logger = logging.getLogger(__name__)
+        self.repository = repository
         
-    async def process_user_input(self, conversation_id: str, message: str):
+        # Obtain configuration settings
+        settings = get_settings()
+        
+        # Properly initialize the Kernel using configuration settings
+        self.kernel = Kernel(endpoint=settings.azure_openai_endpoint, api_key=settings.azure_openai_api_key)
+        
+        # Now initialize the AzureOpenAIService using the kernel
+        self.azure_service = AzureOpenAIService(self.kernel)
+        
+        # Initialize and add the skill plugins to the kernel.
+        self.excursion_skill = ExcursionSkill(self.kernel)
+        self.restaurant_skill = RestaurantSkill(self.kernel)
+        self.hotel_skill = HotelSkill(self.kernel)
+        self.flight_skill = FlightSkill(self.kernel)
+
+    async def process_user_input(self, conversation_id: str, message: str) -> Dict[str, Any]:
         """
-        Process the user input by dispatching to the appropriate agent based on keywords in the message.
-        Returns an AgentResponse.
+        Process user input and return a dictionary response.
+        This function uses keyword matching to determine which skill to invoke.
+        The dictionary contains 'success', 'response', and 'suggestions' keys.
         """
         lowered = message.lower()
-        if "flight" in lowered:
-            agent = self.agents.get("flight")
-        elif "hotel" in lowered:
-            agent = self.agents.get("hotel")
+        response = ""
+        skill_invoked = False
+        context = KernelArguments({"input": message})
+
+        # Determine which skill to invoke based on keyword matching.
+        if "excursion" in lowered:
+            response = await self.kernel.invoke("excursion_skill", "search_excursions", context)
+            skill_invoked = True
         elif "restaurant" in lowered:
-            agent = self.agents.get("restaurant")
-        elif "excursion" in lowered:
-            agent = self.agents.get("excursion")
-        else:
-            # If no intent is identified, return a default response.
-            return AgentResponse(
-                success=True,
-                response="Sorry, I couldn't identify your request. Please mention flight, hotel, restaurant, or excursion.",
-                suggestions=[]
-            )
-        
-        # Each agent is expected to have a process_message() method that returns an AgentResponse.
-        return await agent.process_message(message)
-            
-    async def _coordinate_agents(
-        self,
-        user_input: str,
-        analysis: Dict,
-        context: ConversationContext
-    ) -> AgentResponse:
-        """Coordinate between multiple agents for complex requests."""
-        try:
-            responses = {}
-            for agent_type, params in analysis["agent_params"].items():
-                agent = self.agents.get(agent_type)
-                if agent:
-                    response = await agent.process(
-                        AgentRequest(
-                            input=user_input,
-                            context=context,
-                            parameters=params
-                        )
-                    )
-                    responses[agent_type] = response
-                    
-            # Combine responses using LLM
-            combined_response = await self.openai_service.combine_agent_responses(
-                responses,
-                analysis
-            )
-            
-            return AgentResponse(
-                success=True,
-                response=combined_response["message"],
-                data=combined_response["data"],
-                updated_context={
-                    agent_type: resp.updated_context
-                    for agent_type, resp in responses.items()
-                },
-                suggestions=combined_response["suggestions"]
-            )
-            
-        except Exception as e:
-            self.logger.error(f"Coordination error: {str(e)}", exc_info=True)
-            return AgentResponse(
-                success=False,
-                response="Sorry, I had trouble coordinating the travel planning.",
-                suggestions=["Try simpler request", "Plan step by step"]
-            )
-            
-    async def _get_primary_agent(self, intent: str) -> Optional[BaseAgent]:
-        """Get the primary agent for handling a specific intent."""
-        for agent in self.agents.values():
-            if await agent.can_handle(intent):
-                return agent
-        return None
+            response = await self.kernel.invoke("restaurant_skill", "search_restaurants", context)
+            skill_invoked = True
+        elif "hotel" in lowered:
+            response = await self.kernel.invoke("hotel_skill", "search_hotels", context)
+            skill_invoked = True
+        elif "flight" in lowered:
+            response = await self.kernel.invoke("flight_skill", "search_flights", context)
+            skill_invoked = True
+
+        if not skill_invoked:
+            response = "Sorry, I couldn't identify your request. Please mention excursion, restaurant, hotel, or flight."
+
+        return {"success": True, "response": response, "suggestions": []}
 
     async def get_conversation(self, conversation_id: str) -> Optional[Conversation]:
-        """Retrieve a conversation by its ID."""
+        """Retrieve a conversation by its ID from the Cosmos repository."""
         try:
             conversation = await self.repository.get_conversation(conversation_id)
             return conversation

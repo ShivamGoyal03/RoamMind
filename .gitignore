@@ -2,10 +2,7 @@
 .env
 venv
 
-src/agents/excursion_agent.py
-src/agents/flight_agent.py
-src/agents/hotel_agent.py
-src/agents/restaurant_agent.py
+src/agents
 
 src/infrastructure/excursion_service.py
 src/infrastructure/flight_service.py
