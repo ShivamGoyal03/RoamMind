@@ -157,8 +157,7 @@ class AzureOpenAIService:
     def _create_extraction_prompt(self, type: str, input_text: str, context: Dict[str, Any]) -> str:
         """Create a prompt for information extraction."""
         logger.debug(f"Creating {type} extraction prompt")
-        base_prompt = f"Extract {
-            type} information from the following text:\n\n{input_text}\n\n"
+        base_prompt = f"Extract {type} information from the following text:\n\n{input_text}\n\n"
         if context.get("user_preferences"):
             base_prompt += f"Consider user preferences: {
                 context['user_preferences']}\n"
@@ -218,8 +217,7 @@ class AzureOpenAIService:
         Returns:
           A prompt string instructing the LLM to return clear, detailed JSON data.
         """
-        prompt = f"Enhance the following {
-            enhancement_type} information to be more clear, detailed, and user-friendly. Please return valid JSON.\n"
+        prompt = f"Enhance the following {enhancement_type} information to be more clear, detailed, and user-friendly. Please return valid JSON.\n"
         prompt += "Data:\n" + json.dumps(data, indent=2)
         if context:
             prompt += "\nContext:\n" + json.dumps(context, indent=2)
@@ -230,12 +228,10 @@ class AzureOpenAIService:
             data = json.loads(response)
             return data
         except json.JSONDecodeError as e:
-            logger.error(f"Failed to parse LLM response as JSON: {
-                         e}. Raw response: {response}")
+            logger.error(f"Failed to parse LLM response as JSON: {e}. Raw response: {response}")
             return None
         except Exception as e:
-            logger.exception(f"Unexpected error parsing LLM response: {
-                             e}. Raw response: {response}")
+            logger.exception(f"Unexpected error parsing LLM response: {e}. Raw response: {response}")
             return None
 
     async def enhance_hotel_results(self, hotels: List[Dict], search_params: Dict) -> List[Dict]:
@@ -376,14 +372,12 @@ Response:
         try:
             prompt = self._create_flight_results_enhancement_prompt(
                 flights, search_params)
-            logger.info(f"Enhance Flight Results Prompt: {
-                        prompt}")  # Log the prompt
+            logger.info(f"Enhance Flight Results Prompt: {prompt}")  # Log the prompt
             enhanced_flights = await self._call_openai_with_retry(prompt)
             # Log the enhanced results
             logger.info(f"Enhanced Flight Results: {enhanced_flights}")
             if not isinstance(enhanced_flights, list):
-                logger.warning(f"LLM response is not a list: {
-                               enhanced_flights}")
+                logger.warning(f"LLM response is not a list: {enhanced_flights}")
                 return flights  # Fallback if response is not a list
             return enhanced_flights
         except Exception as e:

@@ -15,7 +15,7 @@ class CosmosRepository:
     async def save_user(self, user: User) -> None:
         """Save or update a user in Cosmos DB."""
         try:
-            self.user_container.upsert_item(user.dict())
+            self.user_container.upsert_item(user.model_dump())
         except exceptions.CosmosHttpResponseError as e:
             raise Exception(f"Failed to save user: {e.message}")
 
@@ -32,7 +32,7 @@ class CosmosRepository:
     async def save_conversation(self, conversation: Conversation) -> None:
         """Save or update a conversation in Cosmos DB."""
         try:
-            self.conversation_container.upsert_item(conversation.dict())
+            self.conversation_container.upsert_item(conversation.model_dump())
         except exceptions.CosmosHttpResponseError as e:
             raise Exception(f"Failed to save conversation: {e.message}")
 
