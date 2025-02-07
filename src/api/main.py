@@ -1,5 +1,6 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from chainlit.server import app as chainlit_app
 from .dependencies import get_orchestrator
 from ..models.user import UserInput, UserResponse, Conversation
 from ..utils.logger import setup_logger
@@ -14,6 +15,10 @@ app = FastAPI(
     redoc_url="/api/redoc"
 )
 
+# Mount Chainlit app
+app.mount("/", chainlit_app)
+
+# Configure CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -22,26 +27,32 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.post("/conversations/{conversation_id}/messages", response_model=UserResponse)
-async def process_message(conversation_id: str, user_input: UserInput):
-    """
-    Process a user message via the Semantic Kernel orchestrator.
-    Relies on orchestrator present in dependencies, which handles LLM calls,
-    conversation state and integrates with the repository layer.
-    """
+@app.post("/conversations/{conversation_id}/messages")
+async def process_message(
+    conversation_id: str,
+    request: Request,
+    user_input: UserInput
+):
+    """Process user messages in a conversation."""
     try:
         orchestrator = await get_orchestrator()
-        response = await orchestrator.process_user_input(conversation_id, user_input.message)
+        response = await orchestrator.process_user_input(
+            conversation_id=conversation_id,
+            message=user_input.message
+        )
         return UserResponse(
-            response=response.response,
-            success=response.success,
-            data=response.data,
-            suggestions=response.suggestions,
+            response=response["response"],
+            success=True,
+            data=response.get("data"),
+            suggestions=response.get("suggestions", [])
         )
     except Exception as e:
-        logger.exception(f"Unexpected error processing message for conversation {conversation_id}: {e}")
-        raise HTTPException(status_code=500, detail="An unexpected error occurred. Please try again later.")
-
+        logger.exception(f"Error processing message: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=str(e)
+        )
+    
 @app.get("/conversations/{conversation_id}", response_model=Conversation)
 async def get_conversation(conversation_id: str):
     """
