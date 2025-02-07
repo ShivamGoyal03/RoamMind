@@ -92,17 +92,17 @@ src
 
 ## Usage
 
-### Running the API
-Start the FastAPI application using:
-```bash
-uvicorn src.api.main:app --host 0.0.0.0 --port 8000
-```
-You can access the interactive API documentation at:
-- Swagger UI: `http://localhost:8000/api/docs`
-- ReDoc: `http://localhost:8000/api/redoc`
+### Running the Application
 
-### Running the Web Application
-If integrated with a web frontend (using Streamlit, Gradio, or similar), start the appropriate application as documented.
+Start both FastAPI and Chainlit servers with a single command:
+```bash
+python src/run.py
+```
+
+This will start:
+- FastAPI backend at `http://127.0.0.1:8000`
+- Chainlit UI at `http://127.0.0.1:8501`
+- API docs at `http://127.0.0.1:8000/api/docs`
 
 ## Configuration
 RoamMind is configured via environment variables and the `src/core/config.py` file. Key configuration parameters include:
@@ -116,3 +116,18 @@ RoamMind is configured via environment variables and the `src/core/config.py` fi
 - **Logging:** A custom logger is implemented in `src/utils/logger.py` to track application activity.
 - **Error Handling:** Custom exceptions are defined in `src/exceptions.py` for precise error management.
 - **Skills Integration:** The `src/skills` directory contains skills for handling domain-specific tasks like flight search, hotel booking, restaurant recommendations, and excursion planning.
+
+## Development
+
+### Running Servers Separately
+For development, you can run the servers separately:
+
+1. **FastAPI:**
+   ```bash
+   uvicorn src.api.main:app --host 127.0.0.1 --port 8000 --reload
+   ```
+
+2. **Chainlit:**
+   ```bash
+   chainlit run src/chat_interface.py --port 8501
+   ```
