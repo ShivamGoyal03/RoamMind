@@ -18,13 +18,14 @@ class Message(BaseModel):
         }
 
 class UserInput(BaseModel):
-    message: str = Field(..., description="User's message")
+    message: str
+    type: Optional[str] = "text"
 
 class UserResponse(BaseModel):
-    response: str = Field(..., description="System's response")
-    success: bool = Field(..., description="Indicates if the request was successful")
-    data: Optional[Dict] = Field(None, description="Additional data associated with the response")
-    suggestions: List[str] = Field(default_factory=list, description="List of suggestions")
+    response: str
+    success: bool = True
+    data: Optional[Dict[str, Any]] = None
+    suggestions: Optional[List[str]] = None
 
 class Conversation(BaseModel):
     id: str = Field(..., description="Unique identifier for the conversation")
