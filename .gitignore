@@ -1,10 +1,24 @@
+# Extra Cache
 *__pycache__
+
+# Secret Variables
 .env
+
+# virtual env
 venv
 
+# Agents
 src/agents
 
+# Services
 src/infrastructure/excursion_service.py
 src/infrastructure/flight_service.py
 src/infrastructure/hotel_service.py
 src/infrastructure/restaurant_service.py
+
+# Chainlit
+.chainlit/translations
+.files
+
+# Project Structure
+Structure.md
