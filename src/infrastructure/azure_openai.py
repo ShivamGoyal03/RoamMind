@@ -450,7 +450,8 @@ Flights: {json.dumps(flights, indent=2)}
                     {"role": "system", "content": "Analyze travel-related user input."},
                     {"role": "user", "content": user_input}
                 ],
-                temperature=0.3
+                temperature=0.3,
+                max_tokens=800
             )
             return json.loads(response.choices[0].message.content)
         except Exception as e:

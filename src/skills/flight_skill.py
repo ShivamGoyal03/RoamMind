@@ -5,6 +5,7 @@ from semantic_kernel.kernel import Kernel
 from semantic_kernel.functions.kernel_function_decorator import kernel_function
 from semantic_kernel.functions.kernel_arguments import KernelArguments
 from ..infrastructure.azure_openai import AzureOpenAIService
+from ..utils.location_mapper import get_standard_location_name
 
 logger = logging.getLogger(__name__)
 
@@ -20,13 +21,13 @@ class FlightSkill:
         self.kernel.add_function(self.suggest_flights)
 
     @kernel_function(
-        description="Search for flights based on origin, destination, and travel dates using external APIs.",
+        description="Search for flights based on origin, destination, and travel dates.",
         name="search_flights"
     )
     async def search_flights(self, context: KernelArguments) -> str:
         try:
-            origin = context.get("origin", "")
-            destination = context.get("destination", "")
+            origin = get_standard_location_name(context.get("origin", ""))
+            destination = get_standard_location_name(context.get("destination", ""))
             departure_date = context.get("departure_date", "")
             return_date = context.get("return_date", "")
             
@@ -61,7 +62,6 @@ class FlightSkill:
                 context["error"] = "Flight ID must be provided."
                 return "Please provide a flight ID."
 
-            # Call an external API to get flight details.
             details = await self._fetch_flight_details(flight_id)
             if details and "details" in details:
                 response = details["details"]
