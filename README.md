@@ -112,6 +112,20 @@ RoamMind is configured via environment variables and the `src/core/config.py` fi
 - Cosmos DB connection details (if applicable).
 
 
+## Content Owners
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+
+<table>
+<tr>
+    <td align="center"><a href="https://github.com/ShivamGoyal03">
+        <img src="https://github.com/ShivamGoyal03.png" width="100px;" alt="Shivam Goyal"/><br />
+        <sub><b>Shivam Goyal</b></sub>
+    </a><br />
+    </td>
+</tr></table>
+
+
 ## Additional Information
 - **Logging:** A custom logger is implemented in `src/utils/logger.py` to track application activity.
 - **Error Handling:** Custom exceptions are defined in `src/exceptions.py` for precise error management.
