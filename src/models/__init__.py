@@ -1,4 +1,4 @@
-from .user import User, UserInput, UserResponse, Conversation
+from .user import User, UserInput, UserResponse, Conversation, Message, ConversationContext
 from .excursion import Excursion
 from .flight import Flight
 from .hotel import Hotel
@@ -9,6 +9,8 @@ __all__ = [
     "UserInput",
     "UserResponse",
     "Conversation",
+    "Message",
+    "ConversationContext",
     "Excursion",
     "Flight",
     "Hotel",

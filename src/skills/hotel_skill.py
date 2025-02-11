@@ -174,7 +174,7 @@ class HotelSkill:
             f"match a budget of {budget} and offer amenities such as {amenities}."
         )
         try:
-            result = self.kernel.invoke(prompt)
+            result = await self.kernel.invoke(prompt)
             data = json.loads(result)
             return data.get("suggestions", [])
         except Exception as e:
