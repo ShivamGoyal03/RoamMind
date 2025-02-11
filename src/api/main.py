@@ -1,9 +1,9 @@
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from chainlit.server import app as chainlit_app
-from .dependencies import get_orchestrator
 from ..models.user import UserInput, UserResponse, Conversation
 from ..utils.logger import setup_logger
+from ..core.orchestrator import Orchestrator
 
 logger = setup_logger(__name__)
 
@@ -27,6 +27,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Initialize single orchestrator instance for the app
+orchestrator = Orchestrator()
+
 @app.post("/conversations/{conversation_id}/messages")
 async def process_message(
     conversation_id: str,
@@ -35,7 +38,6 @@ async def process_message(
 ):
     """Process user messages in a conversation."""
     try:
-        orchestrator = await get_orchestrator()
         response = await orchestrator.process_user_input(
             conversation_id=conversation_id,
             message=user_input.message
@@ -55,23 +57,27 @@ async def process_message(
     
 @app.get("/conversations/{conversation_id}", response_model=Conversation)
 async def get_conversation(conversation_id: str):
-    """
-    Retrieve an existing conversation using the Semantic Kernel orchestrator.
-    The orchestrator abstracts all repository interactions.
-    """
+    """Retrieve an existing conversation from session storage."""
     try:
-        orchestrator = await get_orchestrator()
         conversation = await orchestrator.get_conversation(conversation_id)
         if not conversation:
             raise HTTPException(status_code=404, detail="Conversation not found")
         return conversation
     except Exception as e:
-        logger.exception(f"Unexpected error retrieving conversation {conversation_id}: {e}")
-        raise HTTPException(status_code=500, detail="Error retrieving conversation. Please try again later.")
+        logger.exception(f"Error retrieving conversation {conversation_id}: {e}")
+        raise HTTPException(status_code=500, detail="Error retrieving conversation")
+
+@app.delete("/conversations/{conversation_id}")
+async def end_conversation(conversation_id: str):
+    """End a conversation and clean up its session data."""
+    try:
+        orchestrator.cleanup_session(conversation_id)
+        return {"status": "success", "message": "Conversation ended"}
+    except Exception as e:
+        logger.exception(f"Error ending conversation {conversation_id}: {e}")
+        raise HTTPException(status_code=500, detail="Error ending conversation")
 
 @app.get("/health")
 async def health_check():
-    """
-    Health check endpoint to ensure API and orchestrator dependencies are working.
-    """
+    """Health check endpoint to ensure API is working."""
     return {"status": "healthy"}
