@@ -34,6 +34,8 @@ Many travelers face challenges in coordinating their travel plans due to:
 ```
 src
 ├── exceptions.py
+├── run.py
+├── chat_interface.py
 ├── __init__.py
 ├── api
 │   ├── dependencies.py
@@ -64,12 +66,10 @@ src
 ├── utils
 │   ├── currency.py
 │   ├── date_helper.py
+|   ├── location_mapper.py
 │   ├── logger.py
 │   ├── validation.py
 │   └── __init__.py
-└── web
-    ├── app.py
-    └── __init__.py
 ```
 
 ## Installation
