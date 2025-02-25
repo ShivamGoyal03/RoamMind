@@ -47,5 +47,4 @@ src/infrastructure/restaurant_service.py
 .files
 
 # Project Structure
-Structure.md
 src/api/dependencies.py
