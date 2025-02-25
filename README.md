@@ -1,13 +1,4 @@
-# RoamMind
-
-## Background
-In today's fast-paced world, planning a seamless travel experience can be both overwhelming and time-consuming. Modern travelers need personalized recommendations and intelligent planning assistance that goes beyond standard search results to create an engaging and efficient journey.
-
-## The Problem
-Many travelers face challenges in coordinating their travel plans due to:
-- **Fragmented Information:** Travelers must consult multiple sources for flight details, hotel bookings, restaurant options, and local excursions.
-- **Time-Consuming Searches:** Sifting through vast amounts of data to find the best options can be tedious and inefficient.
-- **Generic Recommendations:** Traditional travel websites often provide one-size-fits-all recommendations that fail to meet individual preferences and dynamic travel needs.
+# Travel AI Assistant
 
 ## Key Features
 - **Conversational Interface:** Engage in natural language conversations for travel planning.
@@ -90,6 +81,19 @@ src
    pip install -r requirements.txt
    ```
 
+## Content Owners
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+
+<table>
+<tr>
+    <td align="center"><a href="https://github.com/ShivamGoyal03">
+        <img src="https://github.com/ShivamGoyal03.png" width="100px;" alt="Shivam Goyal"/><br />
+        <sub><b>Shivam Goyal</b></sub>
+    </a><br />
+    </td>
+</tr></table>
+
 ## Usage
 
 ### Running the Application
@@ -112,19 +116,6 @@ RoamMind is configured via environment variables and the `src/core/config.py` fi
 - Cosmos DB connection details (if applicable).
 
 
-## Content Owners
-
-<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
-
-<table>
-<tr>
-    <td align="center"><a href="https://github.com/ShivamGoyal03">
-        <img src="https://github.com/ShivamGoyal03.png" width="100px;" alt="Shivam Goyal"/><br />
-        <sub><b>Shivam Goyal</b></sub>
-    </a><br />
-    </td>
-</tr></table>
-
 
 ## Additional Information
 - **Logging:** A custom logger is implemented in `src/utils/logger.py` to track application activity.
@@ -145,3 +136,15 @@ For development, you can run the servers separately:
    ```bash
    chainlit run src/chat_interface.py --port 8501
    ```
+
+>  [!NOTE]
+> RoamMind is a fictional project created solely as a template and does not represent a real product.
+> It serves as the core logic for building AI agent instructions and is not fully production-ready. Contributions are welcome if you want to enhance it. 
+> This template provides a foundational framework for a Travel AI Assistant, which you can customize to suit your requirements.
+
+---
+For more information, check out the resources:
+- [AI Agents For Beginner Course](https://github.com/microsoft/ai-agents-for-beginners/)
+- [Getting Started with Azure AI Studio](https://techcommunity.microsoft.com/blog/educatordeveloperblog/getting-started-with-azure-ai-studio/4095602?wt.mc_id=studentamb_258691)
+- [Fundamentals of AI agents on Azure](https://learn.microsoft.com/en-us/training/modules/ai-agent-fundamentals/?wt.mc_id=studentamb_258691)
+- [Azure AI Discord](https://aka.ms/AzureAI/Discord)
