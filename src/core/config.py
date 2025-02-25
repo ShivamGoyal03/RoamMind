@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     excursion_api_key: Optional[str] = None
     excursion_api_base_url: Optional[str] = None
 
-    @field_validator('azure_openai_api_key', 'azure_openai_endpoint')
+    # @field_validator('azure_openai_api_key', 'azure_openai_endpoint')
     @classmethod
     def validate_required_fields(cls, v, field):
         if not v:
@@ -26,7 +26,7 @@ class Settings(BaseSettings):
 
     class Config:
         env_file = ".env"
-        case_sensitive = True
+        # case_sensitive = True
 
 _settings = None
 

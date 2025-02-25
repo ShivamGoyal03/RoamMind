@@ -5,6 +5,7 @@ import json
 import uuid
 import asyncio
 from datetime import datetime
+from semantic_kernel.contents.chat_history import ChatHistory
 
 API_BASE_URL = "http://localhost:8000"
 HEADERS = {
@@ -41,6 +42,10 @@ async def start():
     """Initialize chat session."""
     conversation_id = str(uuid.uuid4())
     cl.user_session.set("conversation_id", conversation_id)
+    
+    # Initialize chat history
+    chat_history = ChatHistory()
+    cl.user_session.set("chat_history", chat_history)
     
     welcome_message = """👋 Welcome to RoamMind Travel Assistant!
     
@@ -82,27 +87,43 @@ How can I assist you today?"""
         ]
     ).send()
 
-@cl.on_message
+@cl.on_message 
 async def main(message: cl.Message):
     """Handle user messages."""
     conversation_id = cl.user_session.get("conversation_id")
+    chat_history = cl.user_session.get("chat_history")
+    
     if not conversation_id:
         conversation_id = str(uuid.uuid4())
         cl.user_session.set("conversation_id", conversation_id)
-    
+        
+    if not chat_history:
+        chat_history = ChatHistory()
+        cl.user_session.set("chat_history", chat_history)
+
     async with cl.Step() as step:
         try:
+            # Add user message to history
+            chat_history.add_user_message(message.content)
+            
             # Show typing indicator
             await cl.Message(content="").send()
             
             response = await call_api(
                 f"/conversations/{conversation_id}/messages",
                 method="POST",
-                data={"message": message.content}
+                data={
+                    "message": message.content,
+                    "chat_history": chat_history.to_string()
+                }
             )
             
+            # Add assistant response to history
+            response_text = response.get("response", "No response received")
+            chat_history.add_assistant_message(response_text)
+            
             # Create response message
-            msg = cl.Message(content=response.get("response", "No response received"))
+            msg = cl.Message(content=response_text)
             
             # Add structured data if available
             if response.get("data"):
